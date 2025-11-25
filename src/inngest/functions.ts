@@ -1,18 +1,44 @@
-import prisma from "@/lib/db";
 import { inngest } from "./client";
+import { generateText } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
 
-export const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
+const google = createGoogleGenerativeAI()
+const openAi = createOpenAI()
+const anthropic = createAnthropic()
+
+export const executeAi = inngest.createFunction(
+  { id: "execute-ai" },
+  { event: "execute/ai" },
   async ({ event, step }) => {
-    await step.sleep("wait-a-moment", "10s");
-    await step.sleep("wait-a-moment", "10s");
-    await step.sleep("wait-a-moment", "10s");
+    const { steps: geminiSteps } = await step.ai.wrap(
+      "gemini-generative-text",
+      generateText, {
+      system: "You are a masterchef",
+      model: google("gemini-2.5-flash"),
+      prompt: "Give me a delicious chicken lasgna recipe."
+    }
+    )
 
-    await step.run("create workflow", () => {
-      return prisma.workflow.create({ data: { name: "Workflow from inngest" } })
-    })
+    const { steps: openAiSteps } = await step.ai.wrap(
+      "openAI-generative-text",
+      generateText, {
+      system: "You are a masterchef",
+      model: openAi("gpt-4.1-mini"),
+      prompt: "Give me a delicious chicken lasgna recipe."
+    }
+    )
 
-    return { message: `Hello ${event.data.email}!` };
+    const { steps: anthropicSteps } = await step.ai.wrap(
+      "anthropic-generative-text",
+      generateText, {
+      system: "You are a masterchef",
+      model: anthropic("claude-sonnet-4-0"),
+      prompt: "Give me a delicious chicken lasgna recipe."
+    }
+    )
+
+    return { "gemini": geminiSteps, "OpenAI": openAiSteps, "anthropic": anthropicSteps }
   },
 );
