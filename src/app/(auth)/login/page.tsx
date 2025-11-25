@@ -4,9 +4,5 @@ import { requireNoAuth } from "@/lib/auth-utils";
 export default async function LoginPage() {
   await requireNoAuth();
 
-  return (
-    <div>
-      <LoginForm />
-    </div>
-  );
+  return <LoginForm />;
 }
