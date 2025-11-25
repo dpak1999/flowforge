@@ -1,3 +1,12 @@
-export default function Home() {
-  return <div className="font-bold">Hellow world</div>;
+import { caller } from "@/trpc/server";
+
+export default async function HomePage() {
+  const data = await caller.getUsers();
+
+  return (
+    <div className="font-bold">
+      User object
+      {JSON.stringify(data, null, 2)}
+    </div>
+  );
 }
