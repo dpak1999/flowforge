@@ -3,6 +3,7 @@
 import {
   Entitycontainer,
   EntityHeader,
+  EntityPagination,
   EntitySearch,
 } from "@/components/custom/entity-components";
 import {
@@ -67,11 +68,25 @@ export const WorkflowsSearch = () => {
   );
 };
 
+export const WorkflowsPagination = () => {
+  const workflows = useSuspenseWorkflows();
+  const [params, setParams] = useWorkflowParams();
+
+  return (
+    <EntityPagination
+      disabled={workflows.isFetching}
+      totalPages={workflows.data.totalPages}
+      page={workflows.data.page}
+      onPageChange={(page) => setParams({ ...params, page })}
+    />
+  );
+};
+
 export const WorkflowsContainer = ({ children }: { children: ReactNode }) => {
   return (
     <Entitycontainer
       search={<WorkflowsSearch />}
-      pagination={<></>}
+      pagination={<WorkflowsPagination />}
       header={<WorkflowsHeader />}
     >
       {children}
